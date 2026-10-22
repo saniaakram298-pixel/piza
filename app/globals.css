@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+body { background: #0a0705; color: #f3e9dc; overflow-x: hidden; }
+.snap-sec { scroll-snap-align: start; }
+
+/* scroll reveal */
+[data-reveal] { opacity: 0; transform: translateY(40px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1); }
+[data-reveal="left"] { transform: translateX(-50px); }
+[data-reveal="zoom"] { transform: scale(.85); }
+[data-reveal].in { opacity: 1; transform: none; }
+[data-delay="1"] { transition-delay: .15s; }
+[data-delay="2"] { transition-delay: .3s; }
+[data-delay="3"] { transition-delay: .45s; }
+
+/* slow background motion */
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12); } }
+@keyframes drift { 0%,100% { transform: scale(1.06) translateY(0); } 50% { transform: scale(1.06) translateY(-14px); } }
+.kenburns { animation: kenburns 18s ease-out infinite alternate; }
+.drift { animation: drift 6s ease-in-out infinite; }
+
+/* smoke */
+@keyframes smoke { 0% { transform: translateY(40px) scale(.8); opacity: 0; } 25% { opacity: .35; } 100% { transform: translateY(-260px) translateX(30px) scale(1.8); opacity: 0; } }
+.smoke { position: absolute; border-radius: 9999px; background: radial-gradient(circle, rgba(255,255,255,.55), transparent 70%); filter: blur(22px); animation: smoke 7s ease-in infinite; pointer-events: none; }
+
+/* embers / flour particles */
+@keyframes rise { 0% { transform: translateY(0) translateX(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-70vh) translateX(40px); opacity: 0; } }
+.ember { position: absolute; bottom: -10px; border-radius: 9999px; animation: rise linear infinite; pointer-events: none; }
+
+/* hero entrance */
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
+.nav-in { animation: fadeDown .9s ease both; }
+
+
+/* floating ingredients */
+@keyframes floaty { 0%,100% { transform: translateY(0) rotate(var(--r0)); } 50% { transform: translateY(-26px) rotate(var(--r1)); } }
+.floater { position: absolute; pointer-events: none; animation: floaty var(--d) ease-in-out infinite; filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)); }
+
+/* responsive tweaks */
+@media (max-width: 767px) {
+  .ember { opacity: .8; }
+  .smoke { width: 80px !important; height: 80px !important; }
+}
+img { max-width: 100%; }
+
+/* ---------- scroll-driven scenes ---------- */
+.scrub { position: absolute; will-change: transform, opacity; --k: .6; }
+@media (min-width: 768px) { .scrub { --k: 1; } }
+.scrub img { width: calc(var(--size) * var(--k) * 1px); height: auto; filter: drop-shadow(0 14px 20px rgba(0,0,0,.6)); }
+
+/* layers: ingredients burst out of the pizza as you scroll */
+.explode { transform: translate3d(calc((1 - var(--p, 0)) * var(--fx)), calc((1 - var(--p, 0)) * var(--fy)), 0)
+  rotate(calc(var(--p, 0) * var(--rot))) scale(calc(.45 + var(--p, 0) * .55)); opacity: calc(.15 + var(--p, 0) * .85); }
+
+/* dough: ingredients fall onto the dough as you scroll */
+.fall { --q: clamp(0, calc((var(--p, 0) - var(--s)) * 2.4), 1);
+  transform: translate3d(0, calc((1 - var(--q)) * -115vh), 0) rotate(calc(var(--q) * var(--rot)));
+  opacity: min(1, calc(var(--q) * 10)); }
+
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-14px) rotate(6deg); } }
+.bob { animation: bob var(--d, 5s) ease-in-out infinite; }
+
+/* split-title word reveal */
+.word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; }
+.word > span { display: inline-block; transform: translateY(115%); transition: transform 1s cubic-bezier(.2,.7,.2,1); transition-delay: var(--wd, 0s); }
+[data-reveal="split"] { opacity: 1; transform: none; }
+[data-reveal="split"].in .word > span { transform: none; }
+
+/* collection carousel extras */
+@keyframes orbit { from { transform: translate(-30px, 0) rotate(0deg) scale(1); } to { transform: translate(40px, -18px) rotate(50deg) scale(1.1); } }
+.mini { position: absolute; border-radius: 9999px; object-fit: cover; opacity: .75; filter: blur(1px); pointer-events: none; animation: orbit var(--d) ease-in-out infinite alternate; }
+
+/* top scroll progress bar */
+.progress { transform-origin: left; transform: scaleX(var(--scroll, 0)); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* dark stone table (collection) */
+.stone {
+  background-color: #0d0b09;
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% 62%, rgba(255,170,90,.10), transparent 70%),
+    radial-gradient(ellipse 90% 40% at 50% 100%, rgba(0,0,0,.7), transparent 70%),
+    linear-gradient(180deg, #080605 0%, #0d0b09 38%, #1b1713 60%, #0f0d0b 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .6  0 0 0 0 .55  0 0 0 0 .5  0 0 0 .09 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+}
+
+/* dough toppings: fall and bounce onto the dough when the section appears */
+.drop { opacity: 0; transform: translate3d(0, -120vh, 0) rotate(var(--rot0));
+  transition: transform 1.3s cubic-bezier(.3, 1.4, .5, 1) var(--delay), opacity .15s linear var(--delay); }
+[data-reveal="fall"] { opacity: 1; transform: none; }
+[data-reveal="fall"].in .drop { opacity: 1; transform: translate3d(0, 0, 0) rotate(var(--rot1)); }
